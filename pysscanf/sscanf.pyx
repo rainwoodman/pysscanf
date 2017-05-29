@@ -52,19 +52,24 @@ def dtype2fmt(dtype):
         p = p + 1
     return r
 
-def fscanf(object file, numpy.dtype dtype):
+def fscanf(object file, numpy.dtype dtype, nrows=-1):
     def yield_chunk(file):
         lines = []
         N = 0
-        for line in file:
+        for i, line in enumerate(file):
             lines.append(line)
-            if N == 10000:
-                yield b'\n'.join(lines)
+            N = N + 1
+            if N == 1024:
+                yield b''.join(lines)
                 lines = []
+                N = 0
+            if i == nrows: break
         yield b'\n'.join(lines)
     data = []
+
     for chunk in yield_chunk(file):
-        data.append(sscanf(chunk, dtype))
+        d1 = sscanf(chunk, dtype)
+        data.append(d1)
 
     return numpy.concatenate(data, axis=0)
 
@@ -78,7 +83,7 @@ def sscanf(bytes bytestr, numpy.dtype dtype):
     cdef numpy.intp_t nfmt = len(dtype.fields)
     cdef char * p = buf;
     cdef numpy.intp_t used = 0
-    cdef numpy.intp_t bufsize = 10
+    cdef numpy.intp_t bufsize = 128
 
     cdef numpy.ndarray data = numpy.zeros(bufsize, dtype=dtype)
     cdef char * datap = <char*> data.data
@@ -87,7 +92,7 @@ def sscanf(bytes bytestr, numpy.dtype dtype):
     cdef int iitem
     cdef int finished = 0
     cdef int nitem_full = 0
-
+    cdef int r
     for ifmt in range(nfmt):
         nitem_full = nitem_full + fmt[ifmt].size
 

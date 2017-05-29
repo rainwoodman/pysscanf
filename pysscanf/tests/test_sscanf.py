@@ -45,7 +45,7 @@ def test_fscanf():
                       ('f', ('f4', 2)),
     ])
 
-    line = b'1 1 1 2 2 '
+    line = b'1 1 1 2 2\n'
     data = [line] * 10
     a = fscanf(data, dt)
     assert_array_equal(a['b'], [(1, 1, 1)] * 10)
