@@ -52,6 +52,21 @@ def dtype2fmt(dtype):
         p = p + 1
     return r
 
+def fscanf(object file, numpy.dtype dtype):
+    def yield_chunk(file):
+        lines = []
+        N = 0
+        for line in file:
+            lines.append(line)
+            if N == 10000:
+                yield b'\n'.join(lines)
+                lines = []
+        yield b'\n'.join(lines)
+    data = []
+    for chunk in yield_chunk(file):
+        data.append(sscanf(chunk, dtype))
+
+    return numpy.concatenate(data, axis=0)
 
 def sscanf(bytes bytestr, numpy.dtype dtype):
     """ Build a structured array from a byte string with sscanf.

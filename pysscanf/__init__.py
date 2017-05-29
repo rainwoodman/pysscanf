@@ -1,2 +1,2 @@
-from .sscanf import sscanf
+from .sscanf import sscanf, fscanf
 

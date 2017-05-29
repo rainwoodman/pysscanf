@@ -1,4 +1,4 @@
-from pysscanf import sscanf
+from pysscanf import sscanf, fscanf
 import numpy
 from numpy.testing import assert_array_equal
 def test_scalar():
@@ -25,6 +25,7 @@ def test_scalar():
         assert_array_equal(a[key],  1)
 
     assert len(a) == 10
+
 def test_vector():
     dt = numpy.dtype([
                       ('b', ('b', 3)),
@@ -34,6 +35,19 @@ def test_vector():
     line = b'1 1 1 2 2 '
     data = b'\n'.join([line] * 10)
     a = sscanf(data, dt)
+    assert_array_equal(a['b'], [(1, 1, 1)] * 10)
+    assert_array_equal(a['f'], [(2, 2)] * 10)
+    assert len(a) == 10
+
+def test_fscanf():
+    dt = numpy.dtype([
+                      ('b', ('b', 3)),
+                      ('f', ('f4', 2)),
+    ])
+
+    line = b'1 1 1 2 2 '
+    data = [line] * 10
+    a = fscanf(data, dt)
     assert_array_equal(a['b'], [(1, 1, 1)] * 10)
     assert_array_equal(a['f'], [(2, 2)] * 10)
     assert len(a) == 10
